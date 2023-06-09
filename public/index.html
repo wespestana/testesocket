@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="style.css">
+    <title>Jogo Multiplayer</title>
+</head>
+<body>
+    <div class="timer" id="timer">30</div>
+    <div id="container" class="container">
+        <h1>Teste Jogo com socket.io</h1>
+    </div>
+
+    <div class="word-container">
+        <div class="letter-box"></div>
+        <div class="letter-box"></div>
+        <div class="letter-box"></div>
+        <div class="letter-box"></div>
+        <div class="letter-box"></div>
+        <div class="letter-box"></div>
+        <div class="letter-box"></div>
+        <div class="letter-box"></div>
+        <div class="letter-box"></div>
+        <div class="letter-box"></div>
+        <div class="letter-box"></div>
+      </div>
+
+    <div class="keyboard">
+        <div class="key-group">
+          <div class="key">Q</div>
+          <div class="key">W</div>
+          <div class="key">E</div>
+          <div class="key">R</div>
+          <div class="key">T</div>
+          <div class="key">Y</div>
+          <div class="key">U</div>
+          <div class="key">I</div>
+          <div class="key">O</div>
+          <div class="key">P</div>
+        </div>
+    
+        <div class="key-group">
+          <div class="key">A</div>
+          <div class="key">S</div>
+          <div class="key">D</div>
+          <div class="key">F</div>
+          <div class="key">G</div>
+          <div class="key">H</div>
+          <div class="key">J</div>
+          <div class="key">K</div>
+          <div class="key">L</div>
+        </div>
+    
+        <div class="key-group">
+          <div class="key">Z</div>
+          <div class="key">X</div>
+          <div class="key">C</div>
+          <div class="key">V</div>
+          <div class="key">B</div>
+          <div class="key">N</div>
+          <div class="key">M</div>
+        </div>
+      </div>
+
+
+<script src="/services/controlar.js"></script>
+<script src="/socket.io/socket.io.js"></script>
+    <script>
+    // Obter a referência do elemento do temporizador
+    const timerElement = document.getElementById('timer');
+
+    // Definir o tempo inicial em segundos
+    let timeRemaining = 30;
+
+    // Função para atualizar o temporizador
+    function updateTimer() {
+      // Exibir o tempo restante
+      timerElement.textContent = timeRemaining;
+
+      // Diminuir o tempo restante
+      timeRemaining--;
+
+      // Verificar se o tempo acabou
+      if (timeRemaining < 0) {
+        // Tempo esgotado
+        timerElement.textContent = 'Tempo Esgotado!';
+        return;
+      }
+
+      // Chamar a função novamente após 1 segundo
+      setTimeout(updateTimer, 1000);
+    }
+
+    // Iniciar o temporizador
+    updateTimer();
+
+       // Obtém as letras da palavra correta
+    const word = 'Metamorfose'.toUpperCase();
+    const letterBoxes = document.querySelectorAll('.letter-box');
+
+    // Preenche as letras na tela com quadradinhos vazios
+    for (let i = 0; i < word.length; i++) {
+      letterBoxes[i].textContent = '';
+    }
+
+   // Adiciona um evento de clique às letras do teclado
+const keys = document.querySelectorAll('.key');
+keys.forEach((key) => {
+  key.addEventListener('click', () => {
+    const letter = key.textContent;
+
+    // Verifica se a letra está presente na palavra
+    let found = false;
+    for (let i = 0; i < word.length; i++) {
+      if (word[i] === letter) {
+        found = true;
+        // Altera o fundo da letra para verde
+        key.classList.add('correct');
+        // Preenche o espaço com a letra correta
+        letterBoxes[i].textContent = letter;
+      }
+    }
+
+    if (!found) {
+      // Caso a letra não seja encontrada na palavra, marca a letra como vermelha
+      key.classList.add('wrong');
+    }
+  });
+});
+
+</script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.4.0/socket.io.js"></script>
+  <script>
+    // Conecta ao servidor Socket.io
+    const socket = io();
+
+    // Manipula o evento "playerAssignment"
+    socket.on('playerAssignment', ({ player }) => {
+      alert(`Você é o jogador ${player}`);
+      // Faça o que for necessário com a atribuição do jogador (ex.: exibir mensagem na tela)
+    });
+
+    // Manipula o evento "roomFull"
+    socket.on('roomFull', () => {
+  alert('Sala cheia. Não é possível entrar.');
+  window.location.href = 'salacheia.html'; // Redireciona o usuário para outra página
+});
+
+    // Manipula o evento "disconnect"
+    socket.on('disconnect', () => {
+      alert('Você foi desconectado.');
+      // Faça o que for necessário quando o jogador for desconectado (ex.: exibir mensagem na tela)
+    });
+
+    // Outras manipulações de eventos e lógica do jogo
+
+    // ...
+
+    // Variáveis para controlar o estado do jogo
+let currentPlayer = null; // Jogador atual (1 ou 2)
+let isMyTurn = false; // Indica se é a vez do jogador atual
+let isGameOver = false; // Indica se o jogo acabou
+
+// Função para atualizar o estado do jogo
+function updateGameState() {
+  // Atualiza o estado do jogador atual
+  if (currentPlayer === 1) {
+    document.getElementById('player-turn').textContent = 'Jogador 1 está jogando.';
+  } else if (currentPlayer === 2) {
+    document.getElementById('player-turn').textContent = 'Jogador 2 está jogando.';
+  }
+
+  // Desabilita o teclado do outro jogador
+  const otherPlayerKeyboard = currentPlayer === 1 ? 'keyboard-player2' : 'keyboard-player1';
+  const keys = document.getElementsByClassName(otherPlayerKeyboard);
+  for (let i = 0; i < keys.length; i++) {
+    keys[i].disabled = !isMyTurn;
+  }
+}
+
+// Função para processar a jogada
+function processMove(letter) {
+  if (isMyTurn && !isGameOver) {
+    // Verifica se a letra está correta
+    const isCorrectLetter = checkLetter(letter);
+
+    // Marca a letra correta em verde e completa na linha de palavras
+    if (isCorrectLetter) {
+      markLetterCorrect(letter);
+      completeWord(letter);
+    } else {
+      markLetterIncorrect(letter);
+    }
+
+    // Passa a vez para o oponente
+    switchTurn();
+  }
+}
+
+// Função para verificar se a letra está correta
+function checkLetter(letter) {
+  // Lógica para verificar se a letra está correta
+  // Retorne true se estiver correta, ou false caso contrário
+}
+
+// Função para marcar a letra correta em verde
+function markLetterCorrect(letter) {
+  // Lógica para marcar a letra correta em verde
+}
+
+// Função para marcar a letra incorreta em vermelho
+function markLetterIncorrect(letter) {
+  // Lógica para marcar a letra incorreta em vermelho
+}
+
+// Função para completar a letra na linha de palavras
+function completeWord(letter) {
+  // Lógica para completar a letra na linha de palavras
+}
+
+// Função para passar a vez para o oponente
+function switchTurn() {
+  isMyTurn = false; // Desabilita a vez do jogador atual
+
+  // Emite o evento "switchTurn" para o servidor
+  socket.emit('switchTurn');
+}
+
+// Manipula o evento "switchTurn" recebido do servidor
+socket.on('switchTurn', () => {
+  currentPlayer = currentPlayer === 1 ? 2 : 1; // Alterna o jogador atual
+  isMyTurn = true; // Habilita a vez do novo jogador atual
+
+  // Atualiza o estado do jogo
+  updateGameState();
+});
+
+// Manipula o evento "timeUp" recebido do servidor
+socket.on('timeUp', () => {
+  // Passa a vez para o oponente
+  switchTurn();
+});
+
+// Manipula o evento "wrongGuess" recebido do servidor
+socket.on('wrongGuess', () => {
+  // Passa a vez para o oponente
+  switchTurn();
+});
+
+// Manipula o evento "gameOver" recebido do servidor
+socket.on('gameOver', () => {
+  isGameOver = true;
+  // Lógica para lidar com o fim do jogo
+});
+
+// Inicializa o estado do jogo
+currentPlayer = 1; // Define o jogador inicial
+isMyTurn = true; // É a vez do jogador inicial
+updateGameState();
+
+</script>
+
+
+</body>
+</html>

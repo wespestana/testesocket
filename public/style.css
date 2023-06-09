@@ -1,0 +1,77 @@
+body  {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.container{
+    display:flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 50vw;
+    height: 50vh;
+}
+
+.keyboard {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-top: 50px;
+  }
+
+  .timer {
+    position: fixed;
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: lightgray;
+    padding: 10px;
+    border-radius: 5px;
+    font-size: 24px;
+  }
+
+  .word-container {
+    display: flex;
+    justify-content: center;
+    margin-top: 20px;
+  }
+
+  .letter-box {
+    width: 30px;
+    height: 30px;
+    background-color: lightgray;
+    border: 1px solid black;
+    border-radius: 5px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    margin-right: 5px;
+  }
+
+  .key-group {
+    display: flex;
+    gap: 15px;
+    justify-content: center;
+  }
+
+  .key {
+    width: 30px;
+    height: 30px;
+    background-color: lightgray;
+    border-radius: 5px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+  }
+
+  .correct {
+    background-color: lightgreen;
+  }
+
+  .wrong {
+    background-color: rgb(192, 92, 92);
+  }

@@ -1,0 +1,15 @@
+{
+  "name": "primeirojogo",
+  "version": "1.0.0",
+  "description": "testando jogo multiplayr",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Wesley Pestana",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.18.2",
+    "socket.io": "^4.6.2"
+  }
+}
